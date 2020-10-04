@@ -1,0 +1,36 @@
+Two-Bit Local
+localPredictorSize: 2048
+localCounterBits: 1
+Number of correct predictions: 255602221
+Number of incorrect predictions: 98248979
+Predictor Correctness: 72.234383%
+
+localPredictorSize: 4096
+localCounterBits: 2
+Number of correct predictions: 292146797
+Number of incorrect predictions: 61704403
+Predictor Correctness: 82.562042%
+
+localPredictorSize: 8192
+localCounterBits: 2
+Number of correct predictions: 292178159
+Number of incorrect predictions: 61673041
+Predictor Correctness: 82.570908%
+
+localPredictorSize: 16384
+localCounterBits: 2
+Number of correct predictions: 292195854
+Number of incorrect predictions: 61655346
+Predictor Correctness: 82.575905%
+
+localPredictorSize: 32768
+localCounterBits: 2
+Number of correct predictions: 292198756
+Number of incorrect predictions: 61652444
+Predictor Correctness: 82.576729%
+
+localPredictorSize: 65536
+localCounterBits: 2
+Number of correct predictions: 292200308
+Number of incorrect predictions: 61650892
+Predictor Correctness: 82.577171%

@@ -1,0 +1,35 @@
+TOURNAMENT
+localHistoryTableSize: 2048
+globalPredictorSize: 8192
+choicePredictorSize: 8192
+Number of correct predictions: 182428083
+Number of incorrect predictions: 33704690
+Predictor Correctness: 84.405563%
+
+localHistoryTableSize: 4096
+globalPredictorSize: 8192
+choicePredictorSize: 8192
+Number of correct predictions: 182744423
+Number of incorrect predictions: 33388350
+Predictor Correctness: 84.551926%
+
+localHistoryTableSize: 4096
+globalPredictorSize: 16384
+choicePredictorSize: 16384
+Number of correct predictions: 184227759
+Number of incorrect predictions: 31905014
+Predictor Correctness: 85.238235%
+
+localHistoryTableSize: 8192
+globalPredictorSize: 16384
+choicePredictorSize: 16384
+Number of correct predictions: 184402190
+Number of incorrect predictions: 31730583
+Predictor Correctness: 85.318939%
+
+localHistoryTableSize: 8192
+globalPredictorSize: 32768
+choicePredictorSize: 32768
+Number of correct predictions: 185885705
+Number of incorrect predictions: 30247068
+Predictor Correctness: 86.005333%

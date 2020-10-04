@@ -3,12 +3,14 @@
 const unsigned instShiftAmt = 2; // Number of bits to shift a PC by
 
 // You can play around with these settings.
-const unsigned localPredictorSize = 2048;
+const unsigned localPredictorSize = 65536;
 const unsigned localCounterBits = 2;
-const unsigned localHistoryTableSize = 2048; 
-const unsigned globalPredictorSize = 8192 ;
+
+const unsigned localHistoryTableSize = 16384; 
+const unsigned globalPredictorSize = 32768;
+const unsigned choicePredictorSize = 32768; // Keep this the same as globalPredictorSize.
+
 const unsigned globalCounterBits = 2;
-const unsigned choicePredictorSize = 8192; // Keep this the same as globalPredictorSize.
 const unsigned choiceCounterBits = 2;
 
 Branch_Predictor *initBranchPredictor()
@@ -16,6 +18,9 @@ Branch_Predictor *initBranchPredictor()
     Branch_Predictor *branch_predictor = (Branch_Predictor *)malloc(sizeof(Branch_Predictor));
 
     #ifdef TWO_BIT_LOCAL
+    printf("\n");
+    printf("localPredictorSize: %u\n", localPredictorSize);
+    printf("localCounterBits: %u\n", localCounterBits);
     branch_predictor->local_predictor_sets = localPredictorSize;
     assert(checkPowerofTwo(branch_predictor->local_predictor_sets));
 
@@ -33,6 +38,11 @@ Branch_Predictor *initBranchPredictor()
     #endif
 
     #ifdef TOURNAMENT
+    printf("\n");
+    printf("localHistoryTableSize: %u\n", localHistoryTableSize);
+    printf("globalPredictorSize: %u\n", globalPredictorSize);
+    printf("choicePredictorSize: %u\n", choicePredictorSize);
+
     assert(checkPowerofTwo(localPredictorSize));
     assert(checkPowerofTwo(localHistoryTableSize));
     assert(checkPowerofTwo(globalPredictorSize));
