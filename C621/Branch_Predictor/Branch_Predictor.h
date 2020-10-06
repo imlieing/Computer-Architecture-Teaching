@@ -30,6 +30,27 @@ typedef struct Branch_Predictor
     Sat_Counter *local_counters;
     #endif
 
+    #ifdef GSHARE
+        unsigned local_predictor_size;
+        unsigned local_predictor_mask;
+        Sat_Counter *local_counters;
+
+        unsigned local_history_table_size;
+        unsigned local_history_table_mask;
+        unsigned *local_history_table;
+
+        unsigned global_predictor_size;
+        unsigned global_history_mask;
+        Sat_Counter *global_counters;
+
+        unsigned choice_predictor_size;
+        unsigned choice_history_mask;
+        Sat_Counter *choice_counters;
+
+        uint64_t global_history;
+        unsigned history_register_mask;
+    #endif
+
     #ifdef TOURNAMENT
     unsigned local_predictor_size;
     unsigned local_predictor_mask;

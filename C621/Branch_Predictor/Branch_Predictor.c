@@ -37,6 +37,27 @@ Branch_Predictor *initBranchPredictor()
     }
     #endif
 
+    #ifdef GSHARE
+    assert(checkPowerofTwo(globalPredictorSize));
+    branch_predictor->global_predictor_size = globalPredictorSize;
+    // Initialize global counters
+    branch_predictor->global_counters = 
+        (Sat_Counter *)malloc(globalPredictorSize * sizeof(Sat_Counter));
+
+    int i = 0;
+    for (i = 0; i < globalPredictorSize; i++)
+    {
+        initSatCounter(&(branch_predictor->global_counters[i]), globalCounterBits);
+    }
+
+    branch_predictor->global_history_mask = globalPredictorSize - 1;
+
+    // global history register
+    branch_predictor->global_history = 0;
+
+    // We assume choice predictor size is always equal to global predictor size.
+    #endif
+
     #ifdef TOURNAMENT
     printf("\n");
     printf("localHistoryTableSize: %u\n", localHistoryTableSize);
@@ -162,77 +183,101 @@ bool predict(Branch_Predictor *branch_predictor, Instruction *instr)
     return prediction == instr->taken;
     #endif
 
+    #ifdef GSHARE
+        // unsigned global_predictor_idx = 
+        //     branch_predictor->global_history & branch_predictor->global_history_mask;
+        
+        unsigned global_predictor_idx = (branch_predictor->global_history ^branch_address) &branch_predictor->global_history_mask;
+        // unsigned global_predictor_idx = ((branch_predictor->global_history ^branch_address) << instShiftAmt) &branch_predictor->global_history_mask;
+        bool global_prediction = 
+            getPrediction(&(branch_predictor->global_counters[global_predictor_idx]));
+
+        bool prediction_correct = global_prediction == instr->taken;
+
+        if (instr->taken)
+        {
+            incrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
+        }
+        else
+        {
+            decrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
+        }
+
+        branch_predictor->global_history = branch_predictor->global_history << 1 | instr->taken;
+        return prediction_correct;
+    #endif
+
     #ifdef TOURNAMENT
-    // Step one, get local prediction.
-    unsigned local_history_table_idx = getIndex(branch_address,
-                                           branch_predictor->local_history_table_mask);
-    
-    unsigned local_predictor_idx = 
-        branch_predictor->local_history_table[local_history_table_idx] & 
-        branch_predictor->local_predictor_mask;
+        // Step one, get local prediction.
+        unsigned local_history_table_idx = getIndex(branch_address,
+                                            branch_predictor->local_history_table_mask);
+        
+        unsigned local_predictor_idx = 
+            branch_predictor->local_history_table[local_history_table_idx] & 
+            branch_predictor->local_predictor_mask;
 
-    bool local_prediction = 
-        getPrediction(&(branch_predictor->local_counters[local_predictor_idx]));
+        bool local_prediction = 
+            getPrediction(&(branch_predictor->local_counters[local_predictor_idx]));
 
-    // Step two, get global prediction.
-    unsigned global_predictor_idx = 
-        branch_predictor->global_history & branch_predictor->global_history_mask;
+        // Step two, get global prediction.
+        unsigned global_predictor_idx = 
+            branch_predictor->global_history & branch_predictor->global_history_mask;
 
-    bool global_prediction = 
-        getPrediction(&(branch_predictor->global_counters[global_predictor_idx]));
+        bool global_prediction = 
+            getPrediction(&(branch_predictor->global_counters[global_predictor_idx]));
 
-    // Step three, get choice prediction.
-    unsigned choice_predictor_idx = 
-        branch_predictor->global_history & branch_predictor->choice_history_mask;
+        // Step three, get choice prediction.
+        unsigned choice_predictor_idx = 
+            branch_predictor->global_history & branch_predictor->choice_history_mask;
 
-    bool choice_prediction = 
-        getPrediction(&(branch_predictor->choice_counters[choice_predictor_idx]));
+        bool choice_prediction = 
+            getPrediction(&(branch_predictor->choice_counters[choice_predictor_idx]));
 
 
-    // Step four, final prediction.
-    bool final_prediction;
-    if (choice_prediction)
-    {
-        final_prediction = global_prediction;
-    }
-    else
-    {
-        final_prediction = local_prediction;
-    }
-
-    bool prediction_correct = final_prediction == instr->taken;
-    // Step five, update counters
-    if (local_prediction != global_prediction)
-    {
-        if (local_prediction == instr->taken)
+        // Step four, final prediction.
+        bool final_prediction;
+        if (choice_prediction)
         {
-            // Should be more favorable towards local predictor.
-            decrementCounter(&(branch_predictor->choice_counters[choice_predictor_idx]));
+            final_prediction = global_prediction;
         }
-        else if (global_prediction == instr->taken)
+        else
         {
-            // Should be more favorable towards global predictor.
-            incrementCounter(&(branch_predictor->choice_counters[choice_predictor_idx]));
+            final_prediction = local_prediction;
         }
-    }
 
-    if (instr->taken)
-    {
-        incrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
-        incrementCounter(&(branch_predictor->local_counters[local_predictor_idx]));
-    }
-    else
-    {
-        decrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
-        decrementCounter(&(branch_predictor->local_counters[local_predictor_idx]));
-    }
+        bool prediction_correct = final_prediction == instr->taken;
+        // Step five, update counters
+        if (local_prediction != global_prediction)
+        {
+            if (local_prediction == instr->taken)
+            {
+                // Should be more favorable towards local predictor.
+                decrementCounter(&(branch_predictor->choice_counters[choice_predictor_idx]));
+            }
+            else if (global_prediction == instr->taken)
+            {
+                // Should be more favorable towards global predictor.
+                incrementCounter(&(branch_predictor->choice_counters[choice_predictor_idx]));
+            }
+        }
 
-    // Step six, update global history register
-    branch_predictor->global_history = branch_predictor->global_history << 1 | instr->taken;
-    branch_predictor->local_history_table[local_history_table_idx] = branch_predictor->local_history_table[local_history_table_idx] << 1 | instr->taken;
-    // exit(0);
-    //
-    return prediction_correct;
+        if (instr->taken)
+        {
+            incrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
+            incrementCounter(&(branch_predictor->local_counters[local_predictor_idx]));
+        }
+        else
+        {
+            decrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
+            decrementCounter(&(branch_predictor->local_counters[local_predictor_idx]));
+        }
+
+        // Step six, update global history register
+        branch_predictor->global_history = branch_predictor->global_history << 1 | instr->taken;
+        branch_predictor->local_history_table[local_history_table_idx] = branch_predictor->local_history_table[local_history_table_idx] << 1 | instr->taken;
+        // exit(0);
+        //
+        return prediction_correct;
     #endif
 }
 
