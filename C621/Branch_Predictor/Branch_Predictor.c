@@ -7,8 +7,8 @@ const unsigned localPredictorSize = 65536;
 const unsigned localCounterBits = 2;
 
 const unsigned localHistoryTableSize = 16384; 
-const unsigned globalPredictorSize = 32768;
-const unsigned choicePredictorSize = 32768; // Keep this the same as globalPredictorSize.
+const unsigned globalPredictorSize = 134217728;
+const unsigned choicePredictorSize = 8192; // Keep this the same as globalPredictorSize.
 
 const unsigned globalCounterBits = 2;
 const unsigned choiceCounterBits = 2;

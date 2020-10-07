@@ -11,7 +11,8 @@
 
 // Predictor type
 // #define TWO_BIT_LOCAL
-#define TOURNAMENT
+#define GSHARE
+// #define TOURNAMENT
 
 // saturating counter
 typedef struct Sat_Counter
