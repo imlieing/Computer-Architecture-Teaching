@@ -23,6 +23,11 @@ typedef struct Sat_Counter
     uint8_t counter;
 }Sat_Counter;
 
+typedef struct Perceptron
+{
+    int weights[64];
+}Perceptron;
+
 typedef struct Branch_Predictor
 {
     #ifdef TWO_BIT_LOCAL
@@ -54,6 +59,11 @@ typedef struct Branch_Predictor
     #endif
 
     #ifdef PERCEPTRON
+        unsigned perceptron_mask;
+        Perceptron* perceptron_list; // Number of entries in a local predictor
+        unsigned perceptron_list_size;
+        unsigned theta;
+
         unsigned global_predictor_size;
         unsigned global_history_mask;
         Sat_Counter *global_counters;

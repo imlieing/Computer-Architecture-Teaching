@@ -13,6 +13,84 @@ const unsigned choicePredictorSize = 8192; // Keep this the same as globalPredic
 const unsigned globalCounterBits = 2;
 const unsigned choiceCounterBits = 2;
 
+const unsigned numberOfPerceptrons = 64;
+// Taken from page 5 of supplement one in project 2
+float theta = 142;
+
+
+int sign(int prediction)
+{
+    int output;
+    if (prediction > 0)
+    {
+        output = 1;
+    }
+    else if (prediction < 0)
+    {
+        output = -1;
+    }
+    return output;
+   
+}
+int perceptronPredict(Perceptron* perceptron, int address_bits[])
+{   
+    int i = 0;
+    size_t n = sizeof(perceptron->weights) / sizeof(int);
+    int summation = 0;
+
+    for (i = 0; i < n; i++)
+    {
+        summation = summation + perceptron->weights[i] * address_bits[i];    
+    }
+    if (summation < 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+void intToBinaryDigit(unsigned int in, int* out)
+{
+    int count = 64;
+    unsigned int mask = 1U << (count-1);
+    int i;
+    for (i = 0; i < count; i++) {
+        out[i] = (in & mask) ? 1 : 0;
+        in <<= 1;
+    }
+}
+
+void initPerceptron(Perceptron *perceptron)
+{
+    int i = 0;
+    for (i = 0; i < 64; i++){
+        perceptron->weights[i] = 0;
+    }
+}
+
+void trainPerceptron(Perceptron* perceptron, int* address_bits, int prediction, int t)
+{
+    // t is -1 if the branch wasn't taken and it is 1 if it was taken
+    int i = 0;
+    size_t n = sizeof(perceptron->weights) / sizeof(int);
+
+    if (t == 0)
+    {
+        t = -1;
+    }
+    
+    if (sign(prediction) != t || abs(prediction) <= theta)
+    {
+        for (i = 0; i < n; i++)
+            {
+                perceptron->weights[i] = perceptron->weights[i] + t * address_bits[i];
+            }
+    }
+}
+
 Branch_Predictor *initBranchPredictor()
 {
     Branch_Predictor *branch_predictor = (Branch_Predictor *)malloc(sizeof(Branch_Predictor));
@@ -58,19 +136,29 @@ Branch_Predictor *initBranchPredictor()
     #endif
 
     #ifdef PERCEPTRON
+        branch_predictor->perceptron_list_size = numberOfPerceptrons;
+        assert(checkPowerofTwo(branch_predictor->perceptron_list_size));
+        branch_predictor->perceptron_mask = branch_predictor->perceptron_list_size - 1;
+        branch_predictor->perceptron_list = 
+            (Perceptron *)malloc(branch_predictor->perceptron_list_size * sizeof(Perceptron));
+        int i = 0;
+        for (i = 0; i < branch_predictor->perceptron_list_size; i++)
+        {
+            initPerceptron(&(branch_predictor->perceptron_list[i]));
+        }
+
+
         assert(checkPowerofTwo(globalPredictorSize));
         branch_predictor->global_predictor_size = globalPredictorSize;
         branch_predictor->global_counters = 
             (Sat_Counter *)malloc(globalPredictorSize * sizeof(Sat_Counter));
 
-        int i = 0;
         for (i = 0; i < globalPredictorSize; i++)
         {
             initSatCounter(&(branch_predictor->global_counters[i]), globalCounterBits);
         }
 
         branch_predictor->global_history_mask = globalPredictorSize - 1;
-
         branch_predictor->global_history = 0;
     #endif
 
@@ -224,22 +312,36 @@ bool predict(Branch_Predictor *branch_predictor, Instruction *instr)
     #endif
 
     #ifdef PERCEPTRON
-        unsigned global_predictor_idx = (branch_predictor->global_history ^branch_address) &branch_predictor->global_history_mask;
-        bool global_prediction = 
-            getPrediction(&(branch_predictor->global_counters[global_predictor_idx]));
+    // Ideally, each static branch is allocated its own perceptron to predict its outcome. 
+    // Excerpt taken from supplement: A perceptron learns a target Boolean
+    // function t(z1, ..., 2,) of n inputs. In our case, the 2, are the
+    // bits of a global branch history shift register, and the target
+    // function predicts whether a particular branch will be taken. 
 
-        bool prediction_correct = global_prediction == instr->taken;
+        int index = branch_address % branch_predictor->perceptron_list_size;
+        Perceptron* current_perceptron = &(branch_predictor->perceptron_list[index]);
+        int branch_address_digits[64];
+        intToBinaryDigit(branch_address, branch_address_digits);
+        int prediction = perceptronPredict(current_perceptron, branch_address_digits);
+        trainPerceptron(current_perceptron, branch_address_digits, prediction, instr->taken);
+        branch_predictor->perceptron_list[index] = *current_perceptron;
 
-        if (instr->taken)
-        {
-            incrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
-        }
-        else
-        {
-            decrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
-        }
+        // unsigned global_predictor_idx = (branch_predictor->global_history ^branch_address) &branch_predictor->global_history_mask;
+        // bool global_prediction = 
+        //     getPrediction(&(branch_predictor->global_counters[global_predictor_idx]));
 
-        branch_predictor->global_history = branch_predictor->global_history << 1 | instr->taken;
+        bool prediction_correct = prediction == instr->taken;
+
+        // if (instr->taken)
+        // {
+        //     incrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
+        // }
+        // else
+        // {
+        //     decrementCounter(&(branch_predictor->global_counters[global_predictor_idx]));
+        // }
+
+        // branch_predictor->global_history = branch_predictor->global_history << 1 | instr->taken;
         return prediction_correct;
     #endif
 
