@@ -11,7 +11,8 @@
 
 // Predictor type
 // #define TWO_BIT_LOCAL
-#define GSHARE
+// #define GSHARE
+#define PERCEPTRON
 // #define TOURNAMENT
 
 // saturating counter
@@ -52,25 +53,32 @@ typedef struct Branch_Predictor
         unsigned history_register_mask;
     #endif
 
+    #ifdef PERCEPTRON
+        unsigned global_predictor_size;
+        unsigned global_history_mask;
+        Sat_Counter *global_counters;
+        uint64_t global_history;
+    #endif
+
     #ifdef TOURNAMENT
-    unsigned local_predictor_size;
-    unsigned local_predictor_mask;
-    Sat_Counter *local_counters;
+        unsigned local_predictor_size;
+        unsigned local_predictor_mask;
+        Sat_Counter *local_counters;
 
-    unsigned local_history_table_size;
-    unsigned local_history_table_mask;
-    unsigned *local_history_table;
+        unsigned local_history_table_size;
+        unsigned local_history_table_mask;
+        unsigned *local_history_table;
 
-    unsigned global_predictor_size;
-    unsigned global_history_mask;
-    Sat_Counter *global_counters;
+        unsigned global_predictor_size;
+        unsigned global_history_mask;
+        Sat_Counter *global_counters;
 
-    unsigned choice_predictor_size;
-    unsigned choice_history_mask;
-    Sat_Counter *choice_counters;
+        unsigned choice_predictor_size;
+        unsigned choice_history_mask;
+        Sat_Counter *choice_counters;
 
-    uint64_t global_history;
-    unsigned history_register_mask;
+        uint64_t global_history;
+        unsigned history_register_mask;
     #endif
 }Branch_Predictor;
 
