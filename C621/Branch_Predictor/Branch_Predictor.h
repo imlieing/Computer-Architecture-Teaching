@@ -25,6 +25,7 @@ typedef struct Sat_Counter
 
 typedef struct Perceptron
 {
+    int threshold;
     int weights[64];
 }Perceptron;
 
