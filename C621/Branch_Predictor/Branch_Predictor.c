@@ -68,63 +68,30 @@ void initPerceptron(Perceptron *perceptron)
 {
     perceptron->threshold = ceil(1.93 * globalHistoryBits + 14);
     int i = 0;
-    for (i = 0; i < 64; i++){
+    for (i = 0; i < globalHistoryBits; i++){
         perceptron->weights[i] = 0;
     }
 }
 
-void trainPerceptron(Perceptron* perceptron, unsigned global_history_address, int prediction, int t, int instr_taken)
+void trainPerceptron(Perceptron* perceptron, unsigned global_history_address, signed t)
 {
-    // t is -1 if the branch wasn't taken and it is 1 if it was taken
-    int i = 0;
-    unsigned input = 1;
-    size_t n = sizeof(perceptron->weights) / sizeof(int);
-
-    if (prediction ^ instr_taken || (abs(prediction) <= perceptron->threshold))
-    {
-        perceptron->weights[0] = perceptron->weights[0] + t;
-        unsigned address_bit;
-        for (i = 1; i < n; i++)
-            address_bit = (global_history_address >> i) & 1;
-            {
-               if (address_bit == 0){
-                    input = -1;
-                }
-                else{
-                    input = 1;
-                }
-                perceptron->weights[i] = perceptron->weights[i] + t * input;
-            }
-    }
-}
-
-signed dotProduct(signed *weights, unsigned global_history_register, unsigned global_history_bits)
-{
-    signed dot_product = 0;
     signed input = 1;
-    unsigned ghr_nextbit = 1;
-    for (int i=1; i < global_history_bits; i++) {
-        ghr_nextbit = (global_history_register >> i) & 1;
-        if (ghr_nextbit == 0){
-            input = -1;
-        } else {
+    unsigned address_bit = 0;
+    int i = 0;
+
+    perceptron->weights[0] = perceptron->weights[0] + t; //Learns the bias of the branch
+    for (int i=1; i < globalHistoryBits; i++) {
+        address_bit = (global_history_address >>i) & 1;
+        if (address_bit == 0) {
+            input = -1; 
+        }
+        else {
             input = 1;
         }
-        dot_product = dot_product + weights[i]*input;
+        perceptron->weights[i] = perceptron->weights[i] + t*input;
     }
-    return dot_product + weights[0] * 1; // bias weight gets input =1
 }
-void updatePerceptronWeight(Perceptron *p, unsigned global_history_register, unsigned num_weights, signed t) {    
-    signed xi = 1;
-    unsigned ghr_nextbit=0;
-    p->weights[0] = p->weights[0] + t; //Learns the bias of the branch
-    for (int i=1; i < num_weights; i++) {
-        ghr_nextbit = (global_history_register >>i) & 1;
-        if (ghr_nextbit == 0) {xi = -1; } else {xi = 1;}
-        p->weights[i] = p->weights[i] + t*xi;
-    }
-    return; 
-}
+
 Branch_Predictor *initBranchPredictor()
 {
     Branch_Predictor *branch_predictor = (Branch_Predictor *)malloc(sizeof(Branch_Predictor));
@@ -365,13 +332,11 @@ bool predict(Branch_Predictor *branch_predictor, Instruction *instr)
         else { 
             t = -1;
         }
-        
-        //train 
-        // if ((instr->taken ^ prediction) || (abs(output) <= current_perceptron->threshold)) {
-        //     updatePerceptronWeight(&(branch_predictor->perceptron_list[index]), branch_predictor->global_history, globalHistoryBits, t);
-        // }
 
-        trainPerceptron(current_perceptron, branch_predictor->global_history, output, t, instr->taken);
+        if ((instr->taken ^ prediction) || (abs(output) <= current_perceptron->threshold)) {
+            trainPerceptron(current_perceptron, branch_predictor->global_history, t);
+        }
+        
 
         branch_predictor->global_history = branch_predictor->global_history << 1 | instr->taken;
         return prediction_correct;
