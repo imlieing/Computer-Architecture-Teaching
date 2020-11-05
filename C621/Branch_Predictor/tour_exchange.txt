@@ -33,3 +33,10 @@ choicePredictorSize: 32768
 Number of correct predictions: 339477385
 Number of incorrect predictions: 14373815
 Predictor Correctness: 95.937889%
+
+localHistoryTableSize: 16384
+globalPredictorSize: 32768
+choicePredictorSize: 32768
+Number of correct predictions: 339515972
+Number of incorrect predictions: 14335228
+Predictor Correctness: 95.948799%

@@ -1,0 +1,10 @@
+perceptronTableSize: 2048
+globalHistoryBits: 12
+Number of correct predictions: 188304307
+Number of incorrect predictions: 16415659
+Predictor Correctness: 91.981407%
+perceptronTableSize: 32768
+globalHistoryBits: 12
+Number of correct predictions: 188775859
+Number of incorrect predictions: 15944107
+Predictor Correctness: 92.211746%

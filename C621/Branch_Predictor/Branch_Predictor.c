@@ -13,7 +13,7 @@ const unsigned choicePredictorSize = 8192; // Keep this the same as globalPredic
 const unsigned globalCounterBits = 2;
 const unsigned choiceCounterBits = 2;
 
-const unsigned perceptronTableSize = 2048;
+const unsigned perceptronTableSize = 32768;
 const unsigned globalHistoryBits = 12;
 // Taken from page 5 of supplement one in project 2
 
@@ -137,6 +137,8 @@ Branch_Predictor *initBranchPredictor()
     #endif
 
     #ifdef PERCEPTRON
+        printf("perceptronTableSize: %u\n", perceptronTableSize);
+        printf("globalHistoryBits: %u\n", globalHistoryBits);
         branch_predictor->perceptron_list_size = perceptronTableSize;
         assert(checkPowerofTwo(branch_predictor->perceptron_list_size));
         branch_predictor->perceptron_mask = branch_predictor->perceptron_list_size - 1;
