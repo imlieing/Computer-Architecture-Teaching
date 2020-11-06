@@ -3,7 +3,7 @@
 /* Constants */
 const unsigned block_size = 64; // Size of a cache line (in Bytes)
 // TODO, you should try different size of cache, for example, 128KB, 256KB, 512KB, 1MB, 2MB
-const unsigned cache_size = 256; // Size of a cache (in KB)
+const unsigned cache_size = 128; // Size of a cache (in KB)
 // TODO, you should try different association configurations, for example 4, 8, 16
 const unsigned assoc = 4;
 

@@ -1,7 +1,0 @@
-cache_size: 128
-assoc: 4
-Hit rate: 42.554451%
-
-cache_size: 256
-assoc: 4
-Hit rate: 70.743799%
