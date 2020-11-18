@@ -7,11 +7,6 @@ const unsigned cache_size = 2048; // Size of a cache (in KB)
 // TODO, you should try different association configurations, for example 4, 8, 16
 const unsigned assoc = 4;
 
-    // Step 0, initialize all page lists to false
-Cache_Block **l1;
-Cache_Block **l2; 
-int p;
-
 Cache *initCache()
 {
     printf("\n");
@@ -83,8 +78,8 @@ ARCCache *initARCCache()
 {
     int i;
     ARCCache *arc_cache = (ARCCache *)malloc(sizeof(ARCCache));
-    l1 = (Cache_Block **)malloc(cache_size * sizeof(Cache_Block*));
-    l2 = (Cache_Block **)malloc(cache_size * sizeof(Cache_Block*));
+    Cache_Block **l1 = (Cache_Block **)malloc(cache_size * sizeof(Cache_Block*));
+    Cache_Block **l2 = (Cache_Block **)malloc(cache_size * sizeof(Cache_Block*));
 
     for (i = 0; i < cache_size; i++)
     {
