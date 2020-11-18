@@ -221,6 +221,7 @@ Cache_Block *findBlockARC(ARCCache *arc_cache, uint64_t addr)
     bool found;
     for (i = 0; i < cache_size; i++)
     {
+        if(found){break;}
         if (tag==arc_cache->l1[i]->tag && arc_cache->l1[i]->valid == true)
         {
             // t1 is of size p, and t2 is of size cache_size - p
