@@ -1,0 +1,28 @@
+leela
+cache_size: 2048
+assoc: 16
+Hit rate: 99.058609%
+
+cache_size: 1024
+assoc: 16
+Hit rate: 94.451335%
+
+cache_size: 512
+assoc: 16
+Hit rate: 85.241210%
+
+cache_size: 512
+assoc: 8
+Hit rate: 87.736296%
+
+cache_size: 256
+assoc: 8
+Hit rate: 71.792928%
+
+cache_size: 256
+assoc: 4
+Hit rate: 69.851638%
+
+cache_size: 128
+assoc: 4
+Hit rate: 45.554564%
