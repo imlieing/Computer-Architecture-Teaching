@@ -1,4 +1,0 @@
-
-cache_size: 2048
-assoc: 4
-Hit rate: 93.365123%

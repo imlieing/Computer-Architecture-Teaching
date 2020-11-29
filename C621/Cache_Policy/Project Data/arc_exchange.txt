@@ -1,0 +1,32 @@
+
+cache_size: 2048
+assoc: 4
+Hit rate: 99.998870%
+
+cache_size: 128
+assoc: 4
+Hit rate: 72.675377%
+
+cache_size: 256
+assoc: 4
+Hit rate: 99.997770%
+
+cache_size: 256
+assoc: 8
+Hit rate: 99.997682%
+
+cache_size: 512
+assoc: 8
+Hit rate: 99.997770%
+
+cache_size: 512
+assoc: 16
+Hit rate: 99.997682%
+
+cache_size: 1024
+assoc: 16
+Hit rate: 99.997770%
+
+cache_size: 2048
+assoc: 16
+Hit rate: 99.998019%
