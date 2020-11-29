@@ -1,3 +1,4 @@
 *_Trace
 *.cpu_trace
 *.mem_trace
+*.trace
