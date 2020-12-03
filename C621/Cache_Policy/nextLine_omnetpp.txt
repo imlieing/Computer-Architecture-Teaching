@@ -1,0 +1,7 @@
+NO PREFETCHER W/ LRU CACHE POLICY
+block_size: 64
+cache_size: 2048
+assoc: 16
+Hit rate: 55.623278%
+
+********************************************************
