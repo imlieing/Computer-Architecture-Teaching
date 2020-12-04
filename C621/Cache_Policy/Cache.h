@@ -13,7 +13,8 @@
 #include "Request.h"
 
 #define LRU
-#define PREFETCH
+// #define PREFETCH
+// #define STRIDE
 // #define LFU
 // #define ARC
 
