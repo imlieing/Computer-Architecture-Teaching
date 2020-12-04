@@ -3,5 +3,47 @@ block_size: 64
 cache_size: 2048
 assoc: 16
 Hit rate: 24.202030%
-
 ********************************************************
+
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 1
+Hit rate: 57.298929%
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 2
+Hit rate: 60.032130%
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 4
+Hit rate: 72.459641%
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 8
+Hit rate: 78.945875%
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 16
+Hit rate: 83.250413%
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 32
+Hit rate: 87.236840%
+
+block_size: 64
+cache_size: 2048
+assoc: 16
+n_line_prefetch: 64
+Hit rate: 86.636006%
