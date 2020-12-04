@@ -14,7 +14,7 @@
 
 #define LRU
 // #define PREFETCH
-// #define STRIDE
+#define STRIDE
 // #define LFU
 // #define ARC
 
@@ -40,7 +40,12 @@ typedef struct Cache
     unsigned tag_shift; // To extract tag
 
     Set *sets; // All the sets of a cache
-    
+
+    uint64_t *pc_list; // All cache blocks
+    uint64_t *address_list; // All cache blocks
+    uint64_t current_stride;
+    int cache_size;
+
 }Cache;
 
 typedef struct ARCCache

@@ -58,6 +58,7 @@ Cache *initCache()
         cache->sets[i].ways = (Cache_Block **)malloc(assoc * sizeof(Cache_Block *));
     }
 
+
     // Combine sets and blocks
     for (i = 0; i < num_blocks; i++)
     {
@@ -71,6 +72,22 @@ Cache *initCache()
 
         cache->sets[set].ways[way] = blk;
     }
+
+
+    cache->pc_list = (uint64_t *)malloc(cache_size * sizeof(uint64_t));
+    for (i = 0; i < cache_size; i++)
+    {
+        cache->pc_list[i] = 0;
+    }
+
+    cache->address_list = (uint64_t *)malloc(cache_size * sizeof(uint64_t));
+    for (i = 0; i < cache_size; i++)
+    {
+        cache->address_list[i] = 0;
+    }
+
+    cache->current_stride = 0;
+    cache->cache_size = cache_size;
 
     return cache;
 }

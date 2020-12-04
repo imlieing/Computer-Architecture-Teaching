@@ -58,6 +58,26 @@ int main(int argc, const char *argv[])
                 }
             }
         #else
+
+            #ifdef STRIDE
+                int i = 0;
+                for (int i = 0; i < cache->cache_size; i++)
+                {
+                    if (cache->pc_list[i] == mem_trace->cur_req->PC)
+                    {
+                        cache->current_stride = abs(mem_trace->cur_req->load_or_store_addr - cache->address_list[i]);
+                        cache->address_list[i] = mem_trace->cur_req->load_or_store_addr;
+                        break;
+                    }
+                    else if (cache->pc_list[i] == 0)
+                    {
+                        cache->pc_list[i] = mem_trace->cur_req->PC;
+                        cache->address_list[i] = mem_trace->cur_req->load_or_store_addr;
+                        break;
+                    }
+                }
+            #endif
+
             if (accessBlock(cache, mem_trace->cur_req, cycles))
             {
                 // Cache hit
@@ -85,11 +105,14 @@ int main(int argc, const char *argv[])
                     }
                 
                 #elif defined STRIDE
-
                     if (insertBlock(cache, mem_trace->cur_req, cycles, &wb_addr))
                     {
                         num_evicts++;
-        //                printf("Evicted: %"PRIu64"\n", wb_addr);
+                    }
+                    mem_trace->cur_req->load_or_store_addr = mem_trace->cur_req->load_or_store_addr + cache->current_stride;
+                    if (insertBlock(cache, mem_trace->cur_req, cycles, &wb_addr))
+                    {
+                        num_evicts++;
                     }
                     
                 #else
