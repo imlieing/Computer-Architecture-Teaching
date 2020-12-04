@@ -5,7 +5,7 @@ const unsigned block_size = 64; // Size of a cache line (in Bytes)
 // TODO, you should try different size of cache, for example, 128KB, 256KB, 512KB, 1MB, 2MB
 const unsigned cache_size = 2048; // Size of a cache (in KB)
 // TODO, you should try different association configurations, for example 4, 8, 16
-const unsigned assoc = 4;
+const unsigned assoc = 16;
 
 Cache *initCache()
 {
@@ -145,7 +145,7 @@ bool insertBlock(Cache *cache, Request *req, uint64_t access_time, uint64_t *wb_
     Cache_Block *victim = NULL;
     bool wb_required = true; 
     #ifdef LRU
-        wb_required = lru(cache, blk_aligned_addr, &victim);
+        wb_required = lru(cache, blk_aligned_addr, &victim, wb_addr);
     #endif
 
     #ifdef LFU
@@ -315,10 +315,14 @@ inline uint64_t blkAlign(uint64_t addr, uint64_t mask)
 }
 
 
-bool lru(Cache *cache, uint64_t addr, Cache_Block **victim_blk)
+
+bool lru(Cache *cache, uint64_t addr, Cache_Block **victim_blk, uint64_t *wb_addr)
 {
     uint64_t set_idx = (addr >> cache->set_shift) & cache->set_mask;
+    //    printf("Set: %"PRIu64"\n", set_idx);
     Cache_Block **ways = cache->sets[set_idx].ways;
+
+    // Step one, try to find an invalid block.
     int i;
     for (i = 0; i < cache->num_ways; i++)
     {
@@ -340,7 +344,7 @@ bool lru(Cache *cache, uint64_t addr, Cache_Block **victim_blk)
     }
 
     // Step three, need to write-back the victim block
-    // *wb_addr = (victim->tag << cache->tag_shift) | (victim->set << cache->set_shift);
+    *wb_addr = (victim->tag << cache->tag_shift) | (victim->set << cache->set_shift);
 //    uint64_t ori_addr = (victim->tag << cache->tag_shift) | (victim->set << cache->set_shift);
 //    printf("Evicted: %"PRIu64"\n", ori_addr);
 
